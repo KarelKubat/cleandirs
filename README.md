@@ -34,7 +34,7 @@ To clean files out of `/tmp` you will probably want user `root` to run this, e.g
 Here is an example:
 
 ```shell
-PATH=//bin:/usr/bin:/sbin:/usr/sbin:/WHEREVER/YOU/HAVE/THE/CLEANDIRS/BINARY
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/WHEREVER/YOU/HAVE/THE/CLEANDIRS/BINARY
 
 # Remove cleandir logging at reboot
 @reboot rm -f /tmp/cleandirs.log
