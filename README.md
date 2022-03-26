@@ -23,6 +23,8 @@ Just run `cleandirs` to see it in action in dry-run mode. The defaults are:
 
 - If you don't want `cleandirs` to remove empty subdirs under your temporary directories, add `-prune-dirs=false`.
 
+- If you want `cleandirs` to also remove special files (pipes, FIFO's), add `--all-files`. Default is to consider only regular files.
+
 - Stale files are considered those entries that are more than a day old. Use `-ttl=...` to specify a different time. E.g., if you want to keep up to 1week old files, use `-ttl=168h`.
 
 - When `-version` is given, then `cleandirs` only reports its version and then stops. When `-help` is given, then an overview of all flags is shown and nothing else happens.
