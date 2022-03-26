@@ -3,19 +3,20 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/KarelKubat/cleandirs/dir"
+	"github.com/KarelKubat/cleandirs/l"
 )
 
 var (
 	dirsToClean = flag.String("dirs-to-clean", "/tmp", "comma-separated list of directories to clean out")
 	ttl         = flag.Duration("ttl", time.Hour*24, "time to live: files older than this are removed")
 	pruneDirs   = flag.Bool("prune-dirs", true, "when true, empty directories under --dirs-to-clean are removed")
+	allFiles    = flag.Bool("all-files", false, "when true, remove also special files (pipes, fifo's etc.), default: regular files only")
 	dryRun      = flag.Bool("dry-run", true, "when true, suggested removals are shown but not actuated")
 	version     = flag.Bool("version", false, "show version ID, then stop")
 
@@ -27,15 +28,14 @@ Try cleandirs -help for a listing of available flags.
 )
 
 const (
-	versionID = "1.00"
+	versionID = "1.01"
 )
 
 func main() {
-	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
 
 	flag.Parse()
 	if len(flag.Args()) != 0 {
-		log.Fatal(usageInfo)
+		l.Printf(l.FATAL, usageInfo)
 	}
 
 	if *version {
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	cutoff := time.Now().Add(-*ttl)
-	log.Printf("files modified before %v are considered stale", cutoff)
+	l.Printf(l.INFO, "files modified before %v are considered stale", cutoff)
 	for _, dir := range strings.Split(*dirsToClean, ",") {
 		cleanFilesIn(dir, cutoff)
 	}
@@ -53,23 +53,32 @@ func main() {
 func cleanFilesIn(d string, cutoff time.Time) {
 	entries, err := dir.List(d)
 	if err != nil {
-		log.Printf("warning: failed to list entries in %q: %v\n", d, err)
+		l.Printf(l.WARN, "%q: failed to list entries: %v\n", d, err)
 	}
 	var subdirs []string
 	for _, e := range entries {
+		// Entry is a subdir: queue for further processing
 		if e.DirEntry.IsDir() {
 			subdirs = append(subdirs, e.Fullname)
 			continue
 		}
+		// Entry is too young: skip
 		if e.FileInfo.ModTime().After(cutoff) {
+			l.Printf(l.RECENT, "%q: keeping", e.Fullname)
 			continue
 		}
-		log.Println(e.Fullname, e.Age)
+		// Entry is not a regular file: skip unless --all-files is given
+		if !e.FileInfo.Mode().IsRegular() && !*allFiles {
+			l.Printf(l.NOT_REGULAR, "%q: not a file", e.Fullname)
+			continue
+		}
+
+		l.Printf(l.STALE, "%q: stale, age: %v", e.Fullname, e.Age)
 		if *dryRun {
 			continue
 		}
 		if err := syscall.Unlink(e.Fullname); err != nil {
-			fmt.Printf("warning: failed to unlink %q: %v\n", e.Fullname, err)
+			l.Printf(l.WARN, "%q: failed to unlink: %v\n", e.Fullname, err)
 		}
 	}
 
