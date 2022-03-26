@@ -64,7 +64,7 @@ func cleanFilesIn(d string, cutoff time.Time) {
 		}
 		// Entry is too young: skip
 		if e.FileInfo.ModTime().After(cutoff) {
-			l.Printf(l.RECENT, "%q: keeping", e.Fullname)
+			l.Printf(l.RECENT, "%q: keeping, age: %v", e.Fullname, e.Age)
 			continue
 		}
 		// Entry is not a regular file: skip unless --all-files is given
