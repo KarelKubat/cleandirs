@@ -44,13 +44,13 @@ func main() {
 	}
 
 	cutoff := time.Now().Add(-*ttl)
-	l.Printf(l.INFO, "files modified before %v are considered stale", cutoff)
 	for _, dir := range strings.Split(*dirsToClean, ",") {
 		cleanFilesIn(dir, cutoff)
 	}
 }
 
 func cleanFilesIn(d string, cutoff time.Time) {
+	l.Printf(l.INFO, "scanning %q, files modified before %v are considered stale", d, cutoff)
 	entries, err := dir.List(d)
 	if err != nil {
 		l.Printf(l.WARN, "%q: failed to list entries: %v\n", d, err)
