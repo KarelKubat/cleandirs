@@ -10,12 +10,12 @@ import (
 type Purpose int
 
 const (
-	INFO        Purpose = iota // General info statement
+	INFO        Purpose = iota // General info statement. Keep as first enum for testing.
 	RECENT                     // File is recent, won't remove
 	STALE                      // File is stale, will remove
 	NOT_REGULAR                // File is not a regular file, won't remove
 	WARN                       //  General warning
-	FATAL                      // General failure
+	FATAL                      // General failure. Keep as last enum for testing.
 )
 
 func (p Purpose) String() string {
