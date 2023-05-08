@@ -1,5 +1,8 @@
 # cleandirs
 
+<!-- toc -->
+<!-- /toc -->
+
 `cleandirs` is a small utility, written in Go, which cleans out files beyond a certain age in your temporary directories, typically `/tmp`. Empty subdirectories are removed too.
 
 - Prerequisites: Go V1.17 (or better)
